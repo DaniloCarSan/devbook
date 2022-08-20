@@ -1,0 +1,19 @@
+version: '3.1'
+name: "DEVBOOK"
+services:
+  database:
+    image: 'mariadb:10'
+    restart: always
+    ports:
+      - "${DATABASE_PORT:-3306}:3306"
+    environment:
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: "${DATABASE_NAME}"
+      MYSQL_PASSWORD: "${DATABASE_PASS}"
+      MYSQL_USER: "${DATABASE_USER}"
+      MYSQL_ROOT_PASSWORD: "${DATABASE_PASS}"
+    volumes:
+      - 'database:/var/lib/mysql'
+volumes:
+  database:
+    driver: local
