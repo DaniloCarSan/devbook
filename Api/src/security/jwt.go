@@ -1,6 +1,7 @@
 package security
 
 import (
+	"api/src/config"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -13,5 +14,5 @@ func GenerateJwtToken(id uint64) (string, error) {
 	permissions["exp"] = time.Now().Add(time.Hour * 6).Unix()
 	permissions["id"] = id
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, permissions)
-	return token.SignedString([]byte("Secret"))
+	return token.SignedString([]byte(config.JWT_SECRET_KEY))
 }

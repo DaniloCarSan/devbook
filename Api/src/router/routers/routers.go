@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"api/src/middlewares"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -30,7 +31,13 @@ func PublishInMux(r *mux.Router) *mux.Router {
 	for _, rg := range rgs {
 		for _, route := range rg.Routes {
 			route.Uri = rg.Name + route.Uri
-			r.HandleFunc(route.Uri, route.Exec).Methods(route.Method)
+
+			if route.RequireAuthenticated {
+				r.HandleFunc(route.Uri, middlewares.Authenticate(route.Exec)).Methods(route.Method)
+			} else {
+				r.HandleFunc(route.Uri, route.Exec).Methods(route.Method)
+			}
+
 		}
 	}
 

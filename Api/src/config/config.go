@@ -12,6 +12,7 @@ import (
 var (
 	DATABASE_FULL_ADD = ""
 	APP_HOST_PORT     = 0
+	JWT_SECRET_KEY    []byte
 )
 
 // Carrega configurações
@@ -34,4 +35,6 @@ func Load() {
 		os.Getenv("DATABASE_PORT"),
 		os.Getenv("DATABASE_NAME"),
 	)
+
+	JWT_SECRET_KEY = []byte(os.Getenv("JWT_SECRET_KEY"))
 }
