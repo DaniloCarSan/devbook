@@ -4,8 +4,7 @@ import (
 	"api/src/database"
 	"api/src/models"
 	"api/src/repositories"
-	"fmt"
-	"log"
+	"api/src/responses"
 	"net/http"
 )
 
@@ -22,18 +21,22 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	db, err := database.DatabaseConnect()
 
 	if err != nil {
-		log.Fatal(err)
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
 	}
+
+	defer db.Close()
 
 	repository := repositories.UserRepository(db)
 
-	id, err := repository.Create(user)
+	user.ID, err = repository.Create(user)
 
 	if err != nil {
-		log.Fatal(err)
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
 	}
 
-	w.Write([]byte(fmt.Sprintf("Create user id:%d", id)))
+	responses.JSON(w, http.StatusCreated, user)
 }
 
 // All
