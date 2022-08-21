@@ -37,5 +37,15 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("huhuhuhuhuhu está logado !"))
+	token, err := security.GenerateJwtToken(user.ID)
+
+	if err != nil {
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, map[string]interface{}{
+		"token": token,
+		"user":  user,
+	})
 }
