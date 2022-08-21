@@ -1,6 +1,7 @@
 package models
 
 import (
+	"api/src/security"
 	"errors"
 	"net/mail"
 	"strings"
@@ -13,7 +14,7 @@ type User struct {
 	Name     string    `json:"name,omitempty"`
 	Nickane  string    `json:"nickane,omitempty"`
 	Email    string    `json:"email,omitempty"`
-	Password string    `json:"password,omitempty"`
+	Password string    `json:"-"`
 	CreateAt time.Time `json:"createAt,omitempty"`
 }
 
@@ -56,13 +57,26 @@ func (u *User) Prepare(step string) error {
 		return err
 	}
 
-	u.format()
+	if err := u.format(step); err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func (u *User) format() {
+func (u *User) format(step string) error {
 	u.Name = strings.TrimSpace(u.Name)
 	u.Nickane = strings.TrimSpace(u.Nickane)
 	u.Email = strings.TrimSpace(u.Email)
+
+	if step == "create" {
+		hash, err := security.PasswordToHash(u.Password)
+		if err != nil {
+			return err
+		}
+
+		u.Password = string(hash)
+	}
+
+	return nil
 }
