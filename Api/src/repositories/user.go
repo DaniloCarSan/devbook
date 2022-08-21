@@ -11,7 +11,7 @@ type user struct {
 }
 
 // Instancia um novo repository
-func UserRepository(db *sql.DB) *user {
+func User(db *sql.DB) *user {
 	return &user{
 		db: db,
 	}
@@ -45,6 +45,7 @@ func (repository *user) Create(user models.User) (uint64, error) {
 	return uint64(id), nil
 }
 
+// All
 func (repository *user) All(nameOrNickname string) ([]models.User, error) {
 
 	var rows *sql.Rows
@@ -64,6 +65,8 @@ func (repository *user) All(nameOrNickname string) ([]models.User, error) {
 		rows, err = repository.db.Query("SELECT id,name,nickname,email,createAt FROM users")
 
 	}
+
+	defer rows.Close()
 
 	if err != nil {
 		return nil, err
@@ -89,4 +92,37 @@ func (repository *user) All(nameOrNickname string) ([]models.User, error) {
 	}
 
 	return users, nil
+}
+
+// ByID
+func (repository *user) ById(id uint64) (models.User, error) {
+
+	rows, err := repository.db.Query(
+		"SELECT id,name,nickname,email,createAt FROM users WHERE id = ? LIMIT 1",
+		id,
+	)
+
+	if err != nil {
+		return models.User{}, err
+	}
+
+	defer rows.Close()
+
+	if !rows.Next() {
+		return models.User{}, nil
+	}
+
+	var user models.User
+
+	if err := rows.Scan(
+		&user.ID,
+		&user.Name,
+		&user.Nickane,
+		&user.Email,
+		&user.CreateAt,
+	); err != nil {
+		return models.User{}, err
+	}
+
+	return user, nil
 }

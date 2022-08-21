@@ -6,7 +6,10 @@ import (
 	"api/src/repositories"
 	"api/src/responses"
 	"net/http"
+	"strconv"
 	"strings"
+
+	"github.com/gorilla/mux"
 )
 
 // Create
@@ -33,7 +36,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 	defer db.Close()
 
-	repository := repositories.UserRepository(db)
+	repository := repositories.User(db)
 
 	user.ID, err = repository.Create(user)
 
@@ -59,7 +62,7 @@ func All(w http.ResponseWriter, r *http.Request) {
 
 	defer db.Close()
 
-	repository := repositories.UserRepository(db)
+	repository := repositories.User(db)
 
 	users, err := repository.All(nameOrNickname)
 
@@ -73,7 +76,40 @@ func All(w http.ResponseWriter, r *http.Request) {
 
 // ById
 func ById(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("ById"))
+
+	params := mux.Vars(r)
+
+	id, err := strconv.ParseUint(params["id"], 10, 64)
+
+	if err != nil {
+		responses.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := database.DatabaseConnect()
+
+	if err != nil {
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	defer db.Close()
+
+	repository := repositories.User(db)
+
+	user, err := repository.ById(id)
+
+	if err != nil {
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if user == (models.User{}) {
+		responses.ERROR(w, http.StatusNotFound, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, user)
 }
 
 // Update
