@@ -170,3 +170,36 @@ func (repository *user) Delete(id uint64) error {
 
 	return nil
 }
+
+func (repository *user) ByEmail(email string) (models.User, error) {
+
+	rows, err := repository.db.Query(
+		"SELECT * FROM users WHERE email = ? LIMIT 1",
+		email,
+	)
+
+	if err != nil {
+		return models.User{}, err
+	}
+
+	defer rows.Close()
+
+	if !rows.Next() {
+		return models.User{}, nil
+	}
+
+	var user models.User
+
+	if err := rows.Scan(
+		&user.ID,
+		&user.Name,
+		&user.Nickane,
+		&user.Email,
+		&user.Password,
+		&user.CreateAt,
+	); err != nil {
+		return models.User{}, err
+	}
+
+	return user, nil
+}

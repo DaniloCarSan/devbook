@@ -20,9 +20,10 @@ type RouteGroup struct {
 	Routes []Route
 }
 
-// Adicina as rotas ao mux
+// Adiciona as rotas ao mux
 func PublishInMux(r *mux.Router) *mux.Router {
 	rgs := []RouteGroup{
+		routersAuth,
 		routersUser,
 	}
 
