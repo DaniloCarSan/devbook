@@ -18,6 +18,11 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		Password: r.FormValue("password"),
 	}
 
+	if err := user.Prepare(); err != nil {
+		responses.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
 	db, err := database.DatabaseConnect()
 
 	if err != nil {
