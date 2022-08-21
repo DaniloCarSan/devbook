@@ -6,6 +6,7 @@ import (
 	"api/src/repositories"
 	"api/src/responses"
 	"net/http"
+	"strings"
 )
 
 // Create
@@ -46,7 +47,28 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 // All
 func All(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("All"))
+
+	var nameOrNickname string = strings.ToLower(r.URL.Query().Get("user"))
+
+	db, err := database.DatabaseConnect()
+
+	if err != nil {
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	defer db.Close()
+
+	repository := repositories.UserRepository(db)
+
+	users, err := repository.All(nameOrNickname)
+
+	if err != nil {
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, users)
 }
 
 // ById
