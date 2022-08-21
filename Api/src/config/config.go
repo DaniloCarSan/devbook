@@ -26,8 +26,8 @@ func Load() {
 	if err != nil {
 		APP_HOST_PORT = 9000
 	}
-	// ?charset=utf8&parseTime=True&loc=Local
-	DATABASE_FULL_ADD = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+
+	DATABASE_FULL_ADD = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
 		os.Getenv("DATABASE_USER"),
 		os.Getenv("DATABASE_PASS"),
 		os.Getenv("DATABASE_HOST"),
