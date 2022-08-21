@@ -4,7 +4,7 @@ import "time"
 
 // User
 type User struct {
-	ID       uint      `json:"id,omitempty"`
+	ID       uint64    `json:"id,omitempty"`
 	Name     string    `json:"name,omitempty"`
 	Nickane  string    `json:"nickane,omitempty"`
 	Email    string    `json:"email,omitempty"`
