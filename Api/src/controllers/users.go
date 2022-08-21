@@ -4,8 +4,7 @@ import (
 	"api/src/database"
 	"api/src/models"
 	"api/src/repositories"
-	"encoding/json"
-	"io"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -13,16 +12,11 @@ import (
 // Create
 func Create(w http.ResponseWriter, r *http.Request) {
 
-	body, err := io.ReadAll(r.Body)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var user models.User
-
-	if err = json.Unmarshal(body, &user); err != nil {
-		log.Fatal(err)
+	user := models.User{
+		Name:     r.FormValue("name"),
+		Nickane:  r.FormValue("nickname"),
+		Email:    r.FormValue("email"),
+		Password: r.FormValue("password"),
 	}
 
 	db, err := database.DatabaseConnect()
@@ -33,9 +27,13 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 	repository := repositories.UserRepository(db)
 
-	repository.Create(user)
+	id, err := repository.Create(user)
 
-	w.Write([]byte("Create"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	w.Write([]byte(fmt.Sprintf("Create user id:%d", id)))
 }
 
 // All

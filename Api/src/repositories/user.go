@@ -17,7 +17,29 @@ func UserRepository(db *sql.DB) *user {
 }
 
 // Create
-func (u *user) Create(user models.User) (uint64, error) {
+func (repository *user) Create(user models.User) (uint64, error) {
 
-	return 0, nil
+	stmt, err := repository.db.Prepare(
+		"INSERT INTO users (name,nickname,email,password)VALUES(?,?,?,?)",
+	)
+
+	if err != nil {
+		return 0, err
+	}
+
+	defer stmt.Close()
+
+	result, err := stmt.Exec(user.Name, user.Nickane, user.Email, user.Password)
+
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := result.LastInsertId()
+
+	if err != nil {
+		return 0, err
+	}
+
+	return uint64(id), nil
 }
