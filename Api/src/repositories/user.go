@@ -126,3 +126,25 @@ func (repository *user) ById(id uint64) (models.User, error) {
 
 	return user, nil
 }
+
+// Update
+func (repository *user) Update(id uint64, user models.User) error {
+
+	stmt, err := repository.db.Prepare(
+		"UPDATE users SET name = ?,  nickname = ? WHERE id = ?",
+	)
+
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(user.Name, user.Nickane, id)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

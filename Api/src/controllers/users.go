@@ -22,7 +22,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		Password: r.FormValue("password"),
 	}
 
-	if err := user.Prepare(); err != nil {
+	if err := user.Prepare("create"); err != nil {
 		responses.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
@@ -114,7 +114,43 @@ func ById(w http.ResponseWriter, r *http.Request) {
 
 // Update
 func Update(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Update"))
+
+	params := mux.Vars(r)
+
+	id, err := strconv.ParseUint(params["id"], 10, 64)
+
+	if err != nil {
+		responses.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	user := models.User{
+		Name:    r.FormValue("name"),
+		Nickane: r.FormValue("nickname"),
+	}
+
+	if err := user.Prepare("update"); err != nil {
+		responses.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := database.DatabaseConnect()
+
+	if err != nil {
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	defer db.Close()
+
+	repository := repositories.User(db)
+
+	if repository.Update(id, user) != nil {
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
 }
 
 // Delete

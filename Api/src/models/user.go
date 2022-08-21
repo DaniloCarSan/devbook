@@ -17,7 +17,7 @@ type User struct {
 	CreateAt time.Time `json:"createAt,omitempty"`
 }
 
-func (u *User) validate() error {
+func (u *User) validate(step string) error {
 
 	if u.Name == "" {
 		return errors.New("field name required")
@@ -27,21 +27,23 @@ func (u *User) validate() error {
 		return errors.New("field nickane required")
 	}
 
-	if u.Email == "" {
+	if step == "create" && u.Email == "" {
 		return errors.New("field email required")
 	}
 
-	_, err := mail.ParseAddress(u.Email)
+	if step == "create" {
+		_, err := mail.ParseAddress(u.Email)
 
-	if err != nil {
-		return errors.New("email invalid")
+		if err != nil {
+			return errors.New("email invalid")
+		}
 	}
 
-	if u.Password == "" {
-		return errors.New("field email required")
+	if step == "create" && u.Password == "" {
+		return errors.New("field password required")
 	}
 
-	if len(u.Password) < 6 {
+	if step == "create" && len(u.Password) < 6 {
 		return errors.New("require  > 6 ")
 	}
 
@@ -49,8 +51,8 @@ func (u *User) validate() error {
 }
 
 // Validar e preparar os dados de entrada
-func (u *User) Prepare() error {
-	if err := u.validate(); err != nil {
+func (u *User) Prepare(step string) error {
+	if err := u.validate(step); err != nil {
 		return err
 	}
 
