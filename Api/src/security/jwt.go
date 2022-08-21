@@ -2,6 +2,10 @@ package security
 
 import (
 	"api/src/config"
+	"errors"
+	"fmt"
+	"net/http"
+	"strings"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -15,4 +19,41 @@ func GenerateJwtToken(id uint64) (string, error) {
 	permissions["id"] = id
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, permissions)
 	return token.SignedString([]byte(config.JWT_SECRET_KEY))
+}
+
+// Validate jwt token
+func ValidateJwtToken(r *http.Request) error {
+
+	tokenString := extractJwtToken(r)
+
+	token, err := jwt.Parse(tokenString, funcSecretJwtKeyVerifySignature)
+
+	if err != nil {
+		return err
+	}
+
+	if _, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return nil
+	}
+
+	return errors.New("Token inválid")
+}
+
+func extractJwtToken(r *http.Request) string {
+	token := r.Header.Get("Authorization")
+
+	if len(strings.Split(token, " ")) == 2 {
+		return strings.Split(token, " ")[1]
+	}
+
+	return ""
+}
+
+func funcSecretJwtKeyVerifySignature(token *jwt.Token) (interface{}, error) {
+
+	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		return nil, fmt.Errorf("Metodo de assinatura inesperado ! %v", token.Header["alg"])
+	}
+
+	return config.JWT_SECRET_KEY, nil
 }

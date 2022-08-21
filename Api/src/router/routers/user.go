@@ -18,7 +18,7 @@ var routersUser = RouteGroup{
 			Uri:                  "",
 			Method:               http.MethodGet,
 			Exec:                 controllers.All,
-			RequireAuthenticated: false,
+			RequireAuthenticated: true,
 		},
 		{
 			Uri:                  "/{id}",
